@@ -1,0 +1,54 @@
+<script src="/socket.io/socket.io.js"></script>
+<script type="text/javascript">
+    var socket = io.connect('http://localhost:3000');
+    socket.on('connect', function (msg) {
+        console.log('connect');
+        document.getElementById('connectId').innerHTML = "あなたの接続ID::" + socket.socket.transport.sessid;
+        document.getElementById('type').innerHTML = "接続方式::" + socket.socket.transport.name;
+    });
+    
+    // when receive a message
+    socket.on('message', function (msg) {
+        // show message in display
+        var textarea = document.querySelector('textarea');
+        textarea.value = msg.value + '\n' + textarea.value;
+    });
+    
+    // send a message
+    function sendMsg(msg) {
+        var msg = document.getElementById('message').value;
+        // emit sending
+        socket.emit('message', { value : msg });
+    }
+    
+    // disconnect
+    function disConnect() {
+        var msg = socket.socket.transport.sessid + "は切断しました。";
+        // emit sending
+        socket.emit('message', { value : msg });
+        // disconnect socket
+        socket.disconnect();
+    }
+</script>
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title><%= title %></title>
+    <link rel='stylesheet' href='/stylesheets/style.css' />
+  </head>
+  <body>
+
+    <h1>socket.ioのサンプルプログラム</h1>
+    <div id="connectId"></div>
+    <div id="type"></div>
+    <br>
+    <input type="text" id="message" value="">
+    <input type="button" value="送信" onclick="sendMsg()">
+    <input type="button" value="切断" onclick="disConnect()">
+    <hr>
+    <textarea id="receiveMsg" rows="10" cols="60"></textarea>
+
+  </body>
+</html>
